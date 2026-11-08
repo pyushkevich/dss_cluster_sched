@@ -38,7 +38,7 @@ On a file system that the compute nodes can also see:
 ```bash
 python3 -m venv /shared/venvs/dss
 /shared/venvs/dss/bin/pip install git+https://github.com/pyushkevich/itksnap-dss-python
-/shared/venvs/dss/bin/pip install git+<this repo>
+/shared/venvs/dss/bin/pip install git+https://github.com/pyushkevich/dss_cluster_sched
 ```
 
 `itksnap-dss` is installed from GitHub because 0.3.0, the first version with
