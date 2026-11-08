@@ -1,0 +1,91 @@
+# Example dss-cluster-sched configuration.
+#
+# The scheduler polls the servers below for tickets of the subscribed services.
+# While the limits allow, it claims a ticket temporarily (claim_timeout) and
+# submits a cluster job for it. When the job starts, it claims the ticket for
+# good; if the claim lapsed and another provider took the ticket meanwhile, the
+# job exits without doing anything.
+
+# Identifies this scheduler: sent to DSS as the provider "code" and used in job
+# names (dss.<instance>.<server>.<ticket>). Defaults to the short host name.
+instance: picsl-login1
+
+# psij executor: slurm, lsf (or local, for testing on one machine)
+executor: slurm
+
+poll_interval: 30          # seconds between scheduling cycles
+claim_timeout: 120         # seconds a temporary claim lasts before the ticket returns to the queue
+service_refresh: 300       # seconds to cache each server's service list
+
+# Job records, generated job specs and job logs. Must be on a file system that
+# the compute nodes can read and write.
+state_dir: ~/.dss_cluster_sched
+
+# Python interpreter that runs the job wrapper on the compute nodes; it needs
+# dss_cluster_sched installed. Defaults to the interpreter running the scheduler.
+# python: /shared/venvs/dss/bin/python
+
+# Global limits. Every limits block below accepts the same two keys; a ticket is
+# claimed only if all limits that apply to it allow one more job.
+limits:
+  max_jobs: 40             # jobs queued + running
+  max_queued: 4            # jobs waiting in the cluster queue
+
+servers:
+  dss:
+    url: https://dss.itksnap.org
+    # Login: run `dss-cluster-sched login config.yaml dss` once and paste a token
+    # from <url>/token. Tokens work only once; the resulting session is saved
+    # (default: <state_dir>/sessions/<server>.session) and shared with the jobs.
+    # session_file: ~/.dss_cluster_sched/sessions/dss.session
+    # For unattended setups, token_file can hold a fresh token instead; it is used
+    # only when there is no valid session yet.
+    # token_file: ~/.dss/dss.token
+    provider: picsl                # provider name registered on that server
+    limits: {max_jobs: 30}
+
+jobs:
+  hyperashs:
+    # Scheduler options. 'custom' passes executor-specific options straight to
+    # psij: 'slurm.<option>' becomes '#SBATCH --<option>=<value>' and
+    # 'lsf.<option>' becomes '#BSUB -<option> <value>'.
+    scheduler:
+      queue: gpu
+      account: picsl
+      duration: "02:00:00"
+      cpus: 4
+      gpus: 1
+      memory: 16G
+      custom: {slurm.constraint: a100}
+      # directory: /scratch/{user}/dss/{ticket}   # working directory, created if needed
+    # Environment setup, run in this order: env, setup, modules, venv.
+    environment:
+      env: {OMP_NUM_THREADS: "4"}
+      setup: source /etc/profile.d/modules.sh
+      modules: [cuda/12.2]
+      venv: /shared/venvs/hyperashs
+    # Command line. {name} fields are filled from the built-in variables
+    # (server_url, server_key, ticket, service_key, service_name,
+    # service_githash, job_key, provider, provider_code, session_file, instance,
+    # user), then 'defaults', then the service's 'params'. All of them are also
+    # exported to the job as DSS_<NAME> environment variables.
+    command: >-
+      python -m hyperashs_dss --server {server_url} --ticket {ticket}
+      --atlas {atlas} --workdir {workdir}
+    defaults:
+      atlas: none
+      workdir: /scratch/{user}/dss/{ticket}
+    limits: {max_jobs: 8, max_queued: 2}
+
+services:
+  ashs-pmc-t1:
+    name: HyperASHS-PMC-T1     # DSS service name: matches all its current versions
+    # githash: 0123...         # or pin one exact service githash instead of 'name'
+    job: hyperashs
+    servers: [dss]             # default: all servers
+    params: {atlas: /shared/atlases/pmc_t1}
+    limits: {max_jobs: 4}
+  ashs-magdeburg:
+    name: HyperASHS-Magdeburg
+    job: hyperashs
+    params: {atlas: /shared/atlases/magdeburg}

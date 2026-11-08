@@ -1,0 +1,15 @@
+# Test environment: single-node SLURM cluster + local DSS server + scheduler.
+#   docker compose up --build             # run the scheduler (web UI on :8080)
+#   docker compose run --rm cluster test  # end-to-end tests
+#   docker compose exec -u dss cluster python /opt/src/docker/submit_tickets.py Dummy-AtlasA 5
+services:
+  cluster:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    hostname: slurmctl
+    ports:
+      - "8080:8080"
+    volumes:
+      # Live source (installed editable in the image): edits apply without a rebuild
+      - .:/opt/src

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dss-cluster-sched"
+version = "0.1.0"
+description = "Schedule ITK-SNAP DSS tickets as jobs on SLURM/LSF clusters"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{name = "Paul Yushkevich"}]
+dependencies = [
+  # 0.3.0 adds temporary claims; until it is on PyPI install it from
+  # git+https://github.com/pyushkevich/itksnap-dss-python
+  "itksnap-dss>=0.3.0",
+  "psij-python==0.9.11",
+  "pyyaml>=5.4",
+  "httpx",
+]
+
+[project.optional-dependencies]
+# The tests start a real DSS server (needs temporary claim support, alfabis_server#12)
+test = [
+  "pytest",
+  "itksnap-dss-server @ git+https://github.com/pyushkevich/alfabis_server",
+]
+
+[project.scripts]
+dss-cluster-sched = "dss_cluster_sched.cli:main"
+
+[tool.setuptools]
+packages = ["dss_cluster_sched"]
