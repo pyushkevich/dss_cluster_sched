@@ -28,8 +28,8 @@ ticket goes back to `ready`. If the same scheduler claims that ticket again, it
 does not submit a second job; the queued job keeps it. A queued job is cancelled
 only when its ticket is finished or deleted.
 
-Temporary claims need itksnap-dss-server with alfabis_server#12 merged and
-itksnap-dss 0.3.0 or later.
+Temporary claims need itksnap-dss-server 0.3.0 or later on the DSS server, and
+itksnap-dss 0.3.0 or later (installed automatically).
 
 ## Install
 
@@ -37,12 +37,8 @@ On a file system that the compute nodes can also see:
 
 ```bash
 python3 -m venv /shared/venvs/dss
-/shared/venvs/dss/bin/pip install git+https://github.com/pyushkevich/itksnap-dss-python
-/shared/venvs/dss/bin/pip install git+https://github.com/pyushkevich/dss_cluster_sched
+/shared/venvs/dss/bin/pip install dss-cluster-sched
 ```
-
-`itksnap-dss` is installed from GitHub because 0.3.0, the first version with
-temporary claims, is not on PyPI yet.
 
 ## Configure
 

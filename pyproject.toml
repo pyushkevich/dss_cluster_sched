@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,22 +8,35 @@ version = "0.1.0"
 description = "Schedule ITK-SNAP DSS tickets as jobs on SLURM/LSF clusters"
 readme = "README.md"
 requires-python = ">=3.9"
-authors = [{name = "Paul Yushkevich"}]
+authors = [{name = "Paul Yushkevich", email = "pyushkevich@gmail.com"}]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Linux",
+  "Intended Audience :: Science/Research",
+  "Development Status :: 3 - Alpha",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Topic :: System :: Distributed Computing",
+]
+keywords = ["ITK-SNAP", "DSS", "SLURM", "LSF", "scheduler"]
 dependencies = [
-  # 0.3.0 adds temporary claims; until it is on PyPI install it from
-  # git+https://github.com/pyushkevich/itksnap-dss-python
-  "itksnap-dss>=0.3.0",
+  "itksnap-dss>=0.3.0",   # temporary claims
   "psij-python==0.9.11",
   "pyyaml>=5.4",
   "httpx",
 ]
 
 [project.optional-dependencies]
-# The tests start a real DSS server (needs temporary claim support, alfabis_server#12)
+# The tests start a real DSS server (temporary claims need 0.3.0)
 test = [
   "pytest",
-  "itksnap-dss-server @ git+https://github.com/pyushkevich/alfabis_server",
+  "itksnap-dss-server>=0.3.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/pyushkevich/dss_cluster_sched"
+Documentation = "https://alfabis-server.readthedocs.io/en/latest/"
 
 [project.scripts]
 dss-cluster-sched = "dss_cluster_sched.cli:main"
