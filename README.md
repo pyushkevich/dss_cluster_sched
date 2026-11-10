@@ -120,7 +120,17 @@ client.dssp_set_status(ticket, 'success')
 
 The job should set the ticket to `success`, or `failed`, itself. If it exits
 non-zero without doing so, the wrapper marks the ticket failed.
-[`testing/dummy_job.py`](testing/dummy_job.py) is a minimal example.
+
+[`examples/neck_trim_job.py`](examples/neck_trim_job.py) is a complete example to
+start from. It trims the neck from a T1 MRI with `picsl_c3d`, and shows how to:
+- connect, with or without `dss_cluster_sched` installed in the job's environment;
+- download the workspace and find a layer by tag;
+- report progress;
+- post log messages with attachments (command output and screenshots);
+- upload a result workspace;
+- report errors.
+
+[`testing/dummy_job.py`](testing/dummy_job.py) is a minimal one.
 
 ## Testing
 
